@@ -1,0 +1,23 @@
+{
+	"name": "Java",
+	"dockerComposeFile": [
+		"docker-compose.yml",
+		"docker-compose.db.yml"
+	],
+	"service" : "dev",
+	"workspaceFolder": "/workspace",
+	"shutdownAction": "stopCompose",
+	
+	"settings": { 
+		"terminal.integrated.shell.linux": "/bin/bash",
+		"java.home": "/docker-java-home"
+	},
+	
+	"extensions": [
+		"vscjava.vscode-java-pack",
+		"shengchen.vscode-checkstyle",
+		"gabrielbb.vscode-lombok"
+	] ,
+
+	"remoteUser": "vscode"
+}
