@@ -1,4 +1,4 @@
-package jp.kogenet.example;
+package jp.kogenet.example.sdks;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;

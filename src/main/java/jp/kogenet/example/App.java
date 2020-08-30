@@ -1,4 +1,4 @@
-package jp.kogenet.sample;
+package jp.kogenet.example;
 
 /**
  * Hello world!

@@ -8,16 +8,25 @@ GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
 
 EOSQL
 
-psql -v ON_ERROR_STOP=1 --username docker --dbname docker <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username do"$POSTGRES_USER" cker --dbname docker <<-EOSQL
 CREATE TABLE users (
-  account_id        SERIAL PRIMARY KEY,
-  account_name      VARCHAR(20),
+  id                SERIAL PRIMARY KEY,
+  user_name         VARCHAR(20) NOT NULL,
   email             VARCHAR(100),
-  password    CHAR(64)
+  password          CHAR(64) NOT NULL
 );
 
-CREATE TABLE userstatus (
-  status            VARCHAR(20) PRIMARY KEY
+CREATE TABLE user_status (
+  id                SERIAL PRIMARY KEY,
+  status            VARCHAR(20) NOT NULL,
+  last_update_at    TIMESTAMP WITH TIME ZONE
+);
+
+CREATE TABLE user_items (
+  id                SERIAL PRIMARY KEY,
+  item_code         INTEGER NOT NULL,
+  purchase_date     DATE NOT NULL,
+  item_name         VARCHAR(100) NOT NULL
 );
 
 EOSQL
