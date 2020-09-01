@@ -17,7 +17,7 @@
 		"vscjava.vscode-java-pack",
 		"shengchen.vscode-checkstyle",
 		"gabrielbb.vscode-lombok",
-		"DotJoshJohnson.vscode-xml"
+		"redhat.vscode-xml"
 	] ,
 
 	"remoteUser": "vscode"

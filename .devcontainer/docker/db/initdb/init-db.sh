@@ -18,15 +18,18 @@ CREATE TABLE users (
 
 CREATE TABLE user_status (
   id                SERIAL PRIMARY KEY,
+  user_id           INTEGER NOT NULL,
   status            VARCHAR(20) NOT NULL,
-  last_update_at    TIMESTAMP WITH TIME ZONE
+  last_updated_at   TIMESTAMP WITH TIME ZONE
 );
 
 CREATE TABLE user_items (
   id                SERIAL PRIMARY KEY,
-  item_code         INTEGER NOT NULL,
+  user_id           INTEGER NOT NULL,
   purchase_date     DATE NOT NULL,
-  item_name         VARCHAR(100) NOT NULL
+  item_code         INTEGER NOT NULL,
+  item_name         VARCHAR(100),
+  last_updated_at   TIMESTAMP WITH TIME ZONE
 );
 
 EOSQL
