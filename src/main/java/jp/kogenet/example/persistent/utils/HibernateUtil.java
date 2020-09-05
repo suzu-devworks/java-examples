@@ -14,9 +14,11 @@ public class HibernateUtil {
 
         SessionFactory factory = null;
         try {
-            factory = new MetadataSources(registry).buildMetadata().buildSessionFactory();
+            factory = new MetadataSources(registry).buildMetadata()
+                    .buildSessionFactory();
         } catch (Exception e) {
-            System.err.println("Initial SessionFactory creation failed." + e.toString());
+            System.err.println(
+                    "Initial SessionFactory creation failed." + e.toString());
             // The registry would be destroyed by the SessionFactory,
             // but we had trouble building the SessionFactory
             // so destroy it manually.
@@ -25,4 +27,5 @@ public class HibernateUtil {
 
         return factory;
     }
+
 }
