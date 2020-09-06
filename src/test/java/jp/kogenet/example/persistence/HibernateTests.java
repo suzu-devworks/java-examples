@@ -5,9 +5,6 @@ import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static com.ninja_squad.dbsetup.Operations.sql;
 import static org.assertj.db.api.Assertions.assertThat;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -97,7 +94,7 @@ public class HibernateTests {
     // @formatter:on
 
     @BeforeEach
-    public void openSession() {
+    void preparation() {
         session = sessionFactory.openSession();
         System.out.println("Session created");
 
@@ -117,20 +114,8 @@ public class HibernateTests {
 
     }
 
-    void setupTestDb(){
-        try(Connection con = destination.getConnection()){
-
-            Statement stm = con.createStatement();
-            stm.execute("CREATE  TABLE person(id int PRIMARY KEY ,name VARCHAR(10),age int )");
-            stm.close();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
     @AfterEach
-    public void closeSession() {
+    void cleanUp() {
         if (session != null)
             session.close();
         System.out.println("Session closed\n");
@@ -143,25 +128,30 @@ public class HibernateTests {
         Changes changes = new Changes(dbSource);
         changes.setStartPointNow();
 
+        // do test function
         session.beginTransaction();
-
         User user = new User(null, "Dave", "dave@example.local", "password for dave.");
         Integer id = (Integer) session.save(user);
-
         session.getTransaction().commit();
 
         changes.setEndPointNow();
 
+        Assertions.assertTrue(id > 0);
         // @formatter:off
         assertThat(changes)
             .hasNumberOfChanges(1)
             .change()
+                .isOnTable("users")
                 .isCreation()
+                .hasPksValues(4)
+                .rowAtStartPoint()
+                    .doesNotExist()
                 .rowAtEndPoint()
+                    .exists()
                     .hasValues(4, "Dave", "dave@example.local",
-                        "password for dave.                                              ");
+                    "password for dave.                                              ");
         // @formatter:on
-        Assertions.assertTrue(id > 0);
+
     }
 
     @Test
@@ -178,6 +168,37 @@ public class HibernateTests {
 
     @Test
     public void testDelete() {
+        System.out.println("Running testDelete...");
+     
+        Integer id = 2;
+        User user = session.find(User.class, id);
+
+        Changes changes = new Changes(dbSource);
+        changes.setStartPointNow();
+
+        // do test function
+        session.beginTransaction();
+        session.delete(user);
+        session.getTransaction().commit();
+         
+        User deletedUser = session.find(User.class, id);
+
+        changes.setEndPointNow();
+
+        Assertions.assertNull(deletedUser);
+
+        // @formatter:off
+        assertThat(changes)
+            .hasNumberOfChanges(1)
+            .change()
+                .isOnTable("users")
+                .isDeletion()
+                .hasPksValues(2)
+                .rowAtStartPoint()
+                    .exists()
+                .rowAtEndPoint()
+                    .doesNotExist();
+        // @formatter:on
     }
 
 }
