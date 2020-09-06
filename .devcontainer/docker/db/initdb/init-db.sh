@@ -8,7 +8,7 @@ GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
 
 EOSQL
 
-psql -v ON_ERROR_STOP=1 --username do"$POSTGRES_USER" cker --dbname docker <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname docker <<-EOSQL
 CREATE TABLE users (
   id                SERIAL PRIMARY KEY,
   user_name         VARCHAR(20) NOT NULL,
