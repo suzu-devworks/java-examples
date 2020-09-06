@@ -5,9 +5,17 @@ import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static com.ninja_squad.dbsetup.Operations.sql;
 import static org.assertj.db.api.Assertions.assertThat;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
+
 import com.ninja_squad.dbsetup.DbSetup;
 import com.ninja_squad.dbsetup.DbSetupTracker;
 import com.ninja_squad.dbsetup.destination.DriverManagerDestination;
+import com.ninja_squad.dbsetup.generator.ValueGenerators;
 import com.ninja_squad.dbsetup.operation.Operation;
 
 import org.assertj.db.type.Changes;
@@ -23,8 +31,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import jp.kogenet.example.persistent.entities.User;
-import jp.kogenet.example.persistent.utils.HibernateUtil;
+import jp.kogenet.example.persistence.entities.User;
+import jp.kogenet.example.persistence.utils.HibernateUtil;
 
 public class HibernateTests {
 
@@ -59,8 +67,7 @@ public class HibernateTests {
 
     private static final Operation TRUCATE_ALL = sequenceOf(
             // truncate("users", "user_items","user_status"),
-            sql("TRUNCATE TABLE users RESTART IDENTITY"),
-            sql("TRUNCATE TABLE user_items RESTART IDENTITY"),
+            sql("TRUNCATE TABLE users RESTART IDENTITY"), sql("TRUNCATE TABLE user_items RESTART IDENTITY"),
             sql("TRUNCATE TABLE user_status RESTART IDENTITY"));
 
     // @formatter:off
@@ -74,13 +81,28 @@ public class HibernateTests {
             );
     // @formatter:on
 
+    // @formatter:off
+    private static final Operation INSERT_USER_ITEMS_DATA = sequenceOf(
+        insertInto("user_items")
+            .withGeneratedValue("item_code", ValueGenerators.sequence().startingAt(1000L).incrementingBy(10))
+            .withGeneratedValue("item_name",
+                    ValueGenerators.stringSequence("ITEM-").startingAt(1000L).incrementingBy(10).withLeftPadding(6))
+            .withGeneratedValue("purchase_date",
+                    ValueGenerators.dateSequence().startingAt(LocalDate.now()).incrementingBy(1, ChronoUnit.DAYS))
+            .withDefaultValue("last_updated_at", ZonedDateTime.now())
+            .columns("user_id")
+                .repeatingValues(1)
+                .times(100)
+            .build());
+    // @formatter:on
+
     @BeforeEach
     public void openSession() {
         session = sessionFactory.openSession();
         System.out.println("Session created");
 
-        Operation operation = sequenceOf(HibernateTests.TRUCATE_ALL,
-                HibernateTests.INSERT_REFERENCE_DATA);
+        Operation operation = sequenceOf(HibernateTests.TRUCATE_ALL, HibernateTests.INSERT_REFERENCE_DATA,
+                HibernateTests.INSERT_USER_ITEMS_DATA);
         DbSetup dbSetup = new DbSetup(destination, operation);
 
         // new DataSourceDestination(dataSource),
@@ -95,6 +117,18 @@ public class HibernateTests {
 
     }
 
+    void setupTestDb(){
+        try(Connection con = destination.getConnection()){
+
+            Statement stm = con.createStatement();
+            stm.execute("CREATE  TABLE person(id int PRIMARY KEY ,name VARCHAR(10),age int )");
+            stm.close();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
     @AfterEach
     public void closeSession() {
         if (session != null)
@@ -111,8 +145,7 @@ public class HibernateTests {
 
         session.beginTransaction();
 
-        User user = new User(null, "Dave", "dave@example.local",
-                "password for dave.");
+        User user = new User(null, "Dave", "dave@example.local", "password for dave.");
         Integer id = (Integer) session.save(user);
 
         session.getTransaction().commit();

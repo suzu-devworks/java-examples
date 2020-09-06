@@ -1,4 +1,4 @@
-package jp.kogenet.example.persistent.utils;
+package jp.kogenet.example.persistence.utils;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;

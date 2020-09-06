@@ -1,4 +1,4 @@
-package jp.kogenet.example.persistent.entities;
+package jp.kogenet.example.persistence.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
