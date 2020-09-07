@@ -17,8 +17,7 @@
 		"vscjava.vscode-java-pack",
 		"shengchen.vscode-checkstyle",
 		"gabrielbb.vscode-lombok",
-		"donjayamanne.githistory",
-		"eamodio.gitlens"
+		"redhat.vscode-xml"
 	] ,
 
 	"remoteUser": "vscode"
