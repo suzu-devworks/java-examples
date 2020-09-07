@@ -3,8 +3,11 @@ package jp.kogenet.example.persistence;
 import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static com.ninja_squad.dbsetup.Operations.sql;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.db.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
@@ -33,10 +36,6 @@ import org.junit.jupiter.api.Test;
 
 import jp.kogenet.example.persistence.entities.User;
 import jp.kogenet.example.persistence.utils.HibernateUtil;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HibernateTests {
 
@@ -262,8 +261,8 @@ public class HibernateTests {
 
         Assertions.assertFalse(resultList.isEmpty());
         Assertions.assertEquals(3, resultList.size());
-        
-     }
+
+    }
 
     @Test
     public void testDelete() {
