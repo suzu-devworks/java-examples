@@ -4,10 +4,12 @@ import static com.ninja_squad.dbsetup.Operations.insertInto;
 import static com.ninja_squad.dbsetup.Operations.sequenceOf;
 import static com.ninja_squad.dbsetup.Operations.sql;
 import static org.assertj.db.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import com.ninja_squad.dbsetup.DbSetup;
 import com.ninja_squad.dbsetup.DbSetupTracker;
@@ -21,6 +23,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -30,6 +33,10 @@ import org.junit.jupiter.api.Test;
 
 import jp.kogenet.example.persistence.entities.User;
 import jp.kogenet.example.persistence.utils.HibernateUtil;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
 
 public class HibernateTests {
 
@@ -64,7 +71,8 @@ public class HibernateTests {
 
     private static final Operation TRUCATE_ALL = sequenceOf(
             // truncate("users", "user_items","user_status"),
-            sql("TRUNCATE TABLE users RESTART IDENTITY"), sql("TRUNCATE TABLE user_items RESTART IDENTITY"),
+            sql("TRUNCATE TABLE users RESTART IDENTITY"),
+            sql("TRUNCATE TABLE user_items RESTART IDENTITY"),
             sql("TRUNCATE TABLE user_status RESTART IDENTITY"));
 
     // @formatter:off
@@ -98,7 +106,8 @@ public class HibernateTests {
         session = sessionFactory.openSession();
         System.out.println("Session created");
 
-        Operation operation = sequenceOf(HibernateTests.TRUCATE_ALL, HibernateTests.INSERT_REFERENCE_DATA,
+        Operation operation = sequenceOf(HibernateTests.TRUCATE_ALL,
+                HibernateTests.INSERT_REFERENCE_DATA,
                 HibernateTests.INSERT_USER_ITEMS_DATA);
         DbSetup dbSetup = new DbSetup(destination, operation);
 
@@ -130,7 +139,8 @@ public class HibernateTests {
 
         // do test function
         session.beginTransaction();
-        User user = new User(null, "Dave", "dave@example.local", "password for dave.");
+        User user = new User(null, "Dave", "dave@example.local",
+                "password for dave.");
         Integer id = (Integer) session.save(user);
         session.getTransaction().commit();
 
@@ -156,20 +166,109 @@ public class HibernateTests {
 
     @Test
     public void testUpdate() {
+        System.out.println("Running testUpdate...");
+
+        Integer id = 3;
+        User user = session.find(User.class, id);
+
+        user.setEmail("charlie@example.local");
+        user.setPassword("updated password for charlie.");
+
+        Changes changes = new Changes(dbSource);
+        changes.setStartPointNow();
+
+        session.beginTransaction();
+        // It has been updated even with commit alone.
+        session.update(user);
+        // session.save(user);
+        // session.saveOrUpdate(user);
+        session.getTransaction().commit();
+
+        changes.setEndPointNow();
+
+        User updatedUser = session.find(User.class, id);
+
+        Assertions.assertNotNull(updatedUser);
+        Assertions.assertEquals(user.getName(), updatedUser.getName());
+        Assertions.assertEquals(user.getEmail(), updatedUser.getEmail());
+        Assertions.assertEquals(user.getPassword(), updatedUser.getPassword());
+
+        // @formatter:off
+        assertThat(changes)
+            .hasNumberOfChanges(1)
+            .change()
+                .isOnTable("users")
+                .isModification()
+                .hasPksValues(id)
+                .column("id").isNotModified()
+                .column("user_name").isNotModified()
+                .column("email")
+                    .valueAtStartPoint()
+                        .isEqualTo("carol@example.local")
+                    .valueAtEndPoint()
+                        .isEqualTo("charlie@example.local")
+                .column("password")
+                    .valueAtStartPoint()
+                        .isEqualTo("password for carol.                                             ")
+                    .valueAtEndPoint()
+                        .isEqualTo("updated password for charlie.                                   ")
+                ;
+        // @formatter:on
     }
 
     @Test
     public void testGet() {
+        System.out.println("Running testGet...");
+        dbSetupTracker.skipNextLaunch();
+
+        Changes changes = new Changes(dbSource);
+        changes.setStartPointNow();
+
+        Integer id = 1;
+        User user = session.find(User.class, id);
+
+        changes.setEndPointNow();
+
+        // jupiter
+        Assertions.assertEquals("Alice", user.getName());
+        Assertions.assertEquals("alice@example.local", user.getEmail());
+        Assertions.assertEquals(
+                "password for alica.                                             ",
+                user.getPassword());
+
+        // hamcrest
+        assertThat(user.getName(), is(equalTo("Alice")));
+        assertThat(user.getEmail(), is(equalTo("alice@example.local")));
+        assertThat(user.getPassword(), is(equalTo(
+                "password for alica.                                             ")));
+
+        // asseretJ
+        assertThat(user.getName()).isEqualTo("Alice");
+        assertThat(user.getEmail()).isEqualTo("alice@example.local");
+        assertThat(user.getPassword()).isEqualTo(
+                "password for alica.                                             ");
+
+        assertThat(changes).hasNumberOfChanges(0);
+
     }
 
     @Test
     public void testList() {
-    }
+        System.out.println("Running testList...");
+        dbSetupTracker.skipNextLaunch();
+
+        Query<User> query = session.createQuery("from User", User.class);
+        List<User> resultList = query.getResultList();
+
+        Assertions.assertFalse(resultList.isEmpty());
+        Assertions.assertEquals(3, resultList.size());
+        
+     }
 
     @Test
     public void testDelete() {
         System.out.println("Running testDelete...");
-     
+
         Integer id = 2;
         User user = session.find(User.class, id);
 
@@ -180,7 +279,7 @@ public class HibernateTests {
         session.beginTransaction();
         session.delete(user);
         session.getTransaction().commit();
-         
+
         User deletedUser = session.find(User.class, id);
 
         changes.setEndPointNow();
@@ -193,7 +292,7 @@ public class HibernateTests {
             .change()
                 .isOnTable("users")
                 .isDeletion()
-                .hasPksValues(2)
+                .hasPksValues(id)
                 .rowAtStartPoint()
                     .exists()
                 .rowAtEndPoint()
