@@ -39,8 +39,7 @@ import jp.kogenet.example.cointents.utils.gson.ZonedDateTimeTypeAdapter;
 
 public class GsonTests {
 
-    private static final String jsonText = getJsonText();
-    private Team team;
+    Gson gson;
 
     private static String getJsonText() {
         var path = Paths.get("src/test/data/contents", "data.json");
@@ -68,91 +67,73 @@ public class GsonTests {
         staff.setSalary(salary);
         staff.setSkills(Arrays.asList("java", "python", "node", "kotlin"));
         staff.setBirthday(LocalDate.of(1970, 4, 1));
-        staff.setLastUpdateAt(ZonedDateTime.of(2018, 1, 12, 13, 14, 15,
-                167000000, ZoneId.of("Asia/Tokyo")));
+        staff.setLastUpdateAt(ZonedDateTime.of(2018, 1, 12, 13, 14, 15, 167000000, ZoneId.of("Asia/Tokyo")));
 
         staff.setLocaleTimeZone(TimeZone.getDefault());
 
-        return Team.create("Avoid project.", LocalDate.of(2020, 9, 1),
-                () -> Arrays.asList(staff));
+        return Team.create("Avoid project.", LocalDate.of(2020, 9, 1), () -> Arrays.asList(staff));
     }
 
     @BeforeEach
     void setUp() {
-        this.team = getTeamInstance();
-    }
-
-    @Test
-    void testJavaToJson() throws JSONException, IOException {
-
         // Gson gson = new Gson();
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class,
-                        new LocalDateTimeTypeAdapter().nullSafe())
-                .registerTypeAdapter(LocalDate.class,
-                        new LocalDateTypeAdapter().nullSafe())
-                .registerTypeAdapter(ZonedDateTime.class,
-                        new ZonedDateTimeTypeAdapter().nullSafe())
+        this.gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter().nullSafe())
+                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter().nullSafe())
+                .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeTypeAdapter().nullSafe())
                 // .excludeFieldsWithoutExposeAnnotation() // enable @Expose()
                 .setExclusionStrategies(new AnnotationExclusionStrategy())
                 // .enableComplexMapKeySerialization()
                 // .serializeNulls()
                 // .setDateFormat(DateFormat.LONG) // do not work.
-                .setFieldNamingPolicy(
-                        FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 // .setPrettyPrinting()
                 .setVersion(1.0) // enable @Since()
                 .create();
+    }
+
+    @Test
+    void testJavaToJson() throws JSONException, IOException {
+
+        final Team team = getTeamInstance();
+        final String expected = getJsonText();
 
         final String actual = gson.toJson(team);
 
         System.out.println(actual);
-        JSONAssert.assertEquals(jsonText, actual, JSONCompareMode.STRICT);
+        JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
 
     }
 
     @Test
     void testJsonToJava() {
 
-        // Gson gson = new Gson();
-        Gson gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class,
-                        new LocalDateTimeTypeAdapter().nullSafe())
-                .registerTypeAdapter(LocalDate.class,
-                        new LocalDateTypeAdapter().nullSafe())
-                .registerTypeAdapter(ZonedDateTime.class,
-                        new ZonedDateTimeTypeAdapter().nullSafe())
-                // .setExclusionStrategies(new AnnotationExclusionStrategy())
-                .setFieldNamingPolicy(
-                        FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-                .create();
+        final Team expected = getTeamInstance();
+        final String data = getJsonText();
 
-        final Team actual = gson.fromJson(jsonText, Team.class);
+        final Team actual = gson.fromJson(data, Team.class);
 
         assertNotNull(actual);
-        assertNotEquals(this.team, actual);
+        assertNotEquals(expected, actual);
 
-        assertEquals(this.team.getName(), actual.getName());
-        assertEquals(this.team.getStartAt(), actual.getStartAt());
-        assertEquals(this.team.getMembers().size(), actual.getMembers().size());
+        assertEquals(expected.getName(), actual.getName());
+        assertEquals(expected.getStartAt(), actual.getStartAt());
+        assertEquals(expected.getMembers().size(), actual.getMembers().size());
 
-        final Staff expectedStaff = this.team.getMembers().get(0);
+        final Staff expectedStaff = expected.getMembers().get(0);
         final Staff actualStaff = actual.getMembers().get(0);
 
         assertEquals(expectedStaff.getName(), actualStaff.getName());
-        assertEquals(expectedStaff.getNumOfYears(),
-                actualStaff.getNumOfYears());
+        assertEquals(expectedStaff.getNumOfYears(), actualStaff.getNumOfYears());
 
-        assertArrayEquals(expectedStaff.getPosition(),
-                actualStaff.getPosition());
+        assertArrayEquals(expectedStaff.getPosition(), actualStaff.getPosition());
         // List<>, Map<> is work probably thanks to toString() method override.
         assertEquals(expectedStaff.getSalary(), actualStaff.getSalary());
         assertEquals(expectedStaff.getSkills(), actualStaff.getSkills());
 
         assertEquals(expectedStaff.getBirthday(), actualStaff.getBirthday());
         assertEquals(expectedStaff.getLastUpdateAt(),
-                actualStaff.getLastUpdateAt()
-                        .withZoneSameInstant(ZoneId.of("Asia/Tokyo")));
+                actualStaff.getLastUpdateAt().withZoneSameInstant(ZoneId.of("Asia/Tokyo")));
 
         assertNull(actualStaff.getLocaleTimeZone());
 

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.annotations.Expose;
 
 import jp.kogenet.example.cointents.utils.gson.Exclude;
@@ -22,6 +23,7 @@ public class Staff {
     private LocalDate birthday;
     private ZonedDateTime lastUpdateAt;
 
+    @JsonIgnore
     @Exclude
     @Expose(serialize = false, deserialize = false) // not work.
     private TimeZone localeTimeZone;
