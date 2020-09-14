@@ -4,10 +4,14 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Supplier;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class Team {
     private String name;

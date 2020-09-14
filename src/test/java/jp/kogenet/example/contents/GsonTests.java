@@ -67,26 +67,32 @@ public class GsonTests {
         staff.setSalary(salary);
         staff.setSkills(Arrays.asList("java", "python", "node", "kotlin"));
         staff.setBirthday(LocalDate.of(1970, 4, 1));
-        staff.setLastUpdateAt(ZonedDateTime.of(2018, 1, 12, 13, 14, 15, 167000000, ZoneId.of("Asia/Tokyo")));
+        staff.setLastUpdateAt(ZonedDateTime.of(2018, 1, 12, 13, 14, 15,
+                167000000, ZoneId.of("Asia/Tokyo")));
 
         staff.setLocaleTimeZone(TimeZone.getDefault());
 
-        return Team.create("Avoid project.", LocalDate.of(2020, 9, 1), () -> Arrays.asList(staff));
+        return Team.create("Avoid project.", LocalDate.of(2020, 9, 1),
+                () -> Arrays.asList(staff));
     }
 
     @BeforeEach
     void setUp() {
         // Gson gson = new Gson();
         this.gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeTypeAdapter().nullSafe())
-                .registerTypeAdapter(LocalDate.class, new LocalDateTypeAdapter().nullSafe())
-                .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeTypeAdapter().nullSafe())
+                .registerTypeAdapter(LocalDateTime.class,
+                        new LocalDateTimeTypeAdapter().nullSafe())
+                .registerTypeAdapter(LocalDate.class,
+                        new LocalDateTypeAdapter().nullSafe())
+                .registerTypeAdapter(ZonedDateTime.class,
+                        new ZonedDateTimeTypeAdapter().nullSafe())
                 // .excludeFieldsWithoutExposeAnnotation() // enable @Expose()
                 .setExclusionStrategies(new AnnotationExclusionStrategy())
                 // .enableComplexMapKeySerialization()
                 // .serializeNulls()
                 // .setDateFormat(DateFormat.LONG) // do not work.
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .setFieldNamingPolicy(
+                        FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 // .setPrettyPrinting()
                 .setVersion(1.0) // enable @Since()
                 .create();
@@ -124,16 +130,19 @@ public class GsonTests {
         final Staff actualStaff = actual.getMembers().get(0);
 
         assertEquals(expectedStaff.getName(), actualStaff.getName());
-        assertEquals(expectedStaff.getNumOfYears(), actualStaff.getNumOfYears());
+        assertEquals(expectedStaff.getNumOfYears(),
+                actualStaff.getNumOfYears());
 
-        assertArrayEquals(expectedStaff.getPosition(), actualStaff.getPosition());
+        assertArrayEquals(expectedStaff.getPosition(),
+                actualStaff.getPosition());
         // List<>, Map<> is work probably thanks to toString() method override.
         assertEquals(expectedStaff.getSalary(), actualStaff.getSalary());
         assertEquals(expectedStaff.getSkills(), actualStaff.getSkills());
 
         assertEquals(expectedStaff.getBirthday(), actualStaff.getBirthday());
         assertEquals(expectedStaff.getLastUpdateAt(),
-                actualStaff.getLastUpdateAt().withZoneSameInstant(ZoneId.of("Asia/Tokyo")));
+                actualStaff.getLastUpdateAt()
+                        .withZoneSameInstant(ZoneId.of("Asia/Tokyo")));
 
         assertNull(actualStaff.getLocaleTimeZone());
 
