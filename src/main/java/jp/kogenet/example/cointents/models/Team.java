@@ -4,19 +4,22 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Supplier;
 
-import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Data
+@JsonDeserialize(builder = Team.TeamBuilder.class)
 public class Team {
-    private String name;
-    private LocalDate startAt;
-    private List<Staff> members;
+    @JsonProperty
+    private final String name;
+    @JsonProperty
+    private final LocalDate startAt;
+    @JsonProperty
+    private final List<Staff> members;
 
     public static Team create(String name, LocalDate startAt,
             Supplier<List<Staff>> staffSupplier) {

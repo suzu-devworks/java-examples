@@ -148,4 +148,22 @@ public class GsonTests {
 
     }
 
+    @Test
+    void testJavaToJsonWithDoubleBrace() throws JSONException, IOException {
+        /*
+        final Team team = new Team();
+        team.setName("normal init.");
+
+        final Team doubleBrace = new Team() {{
+           setName("double");
+        }};
+
+        final String actual = gson.toJson(team);
+        final String actual2 = gson.toJson(doubleBrace);
+
+        JSONAssert.assertEquals("{\"name\":\"normal init.\"}", actual, JSONCompareMode.STRICT);
+        assertEquals("null", actual2);
+        */
+        return;
+    }
 }
