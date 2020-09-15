@@ -16,7 +16,8 @@
 	"extensions": [
 		"vscjava.vscode-java-pack",
 		"shengchen.vscode-checkstyle",
-		"gabrielbb.vscode-lombok"
+		"gabrielbb.vscode-lombok",
+		"redhat.vscode-xml"
 	] ,
 
 	"remoteUser": "vscode"
