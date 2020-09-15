@@ -37,7 +37,7 @@ public class JdbcTests {
 
         // setup standalone JNDI.
         System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-                "jp.kogenet.example.persistence.MyContextFactory");
+                "jp.kogenet.example.persistence.StandaloneContextFactory");
         System.setProperty(Context.URL_PKG_PREFIXES,
                 "jp.kogenet.example.persistence");
 
