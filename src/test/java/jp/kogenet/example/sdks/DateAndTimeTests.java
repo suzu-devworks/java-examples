@@ -171,11 +171,11 @@ public class DateAndTimeTests {
                 assertEquals("2018-01-12T13:14:15.167890123", date1
                                 .format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
-                assertEquals("2018-01-12T13:14:15.167890123Z", date1
-                                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+                assertEquals("2018-01-12T13:14:15.167890123Z", date1.format(
+                                DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
-                assertEquals("2018-01-12T13:14:15.167890123Z[Etc/UTC]",
-                                date1.format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+                assertEquals("2018-01-12T13:14:15.167890123Z[Etc/UTC]", date1
+                                .format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
 
                 DateTimeFormatter dateTimeFormatterJa = DateTimeFormatter
                                 .ofPattern("G yy-MM-dd");
@@ -459,6 +459,23 @@ public class DateAndTimeTests {
                 assertEquals(expected, offsetTime
                                 .atDate(LocalDate.of(2018, 1, 12))
                                 .atZoneSameInstant(ZoneId.of("Asia/Tokyo")));
+
+        }
+
+        @Test
+        @Tag("datetime-convertors")
+        void testSwitchZone() {
+
+                ZonedDateTime jptDateTime = ZonedDateTime.of(2018, 1, 12, 13,
+                                14, 15, 167890123, ZoneId.of("Asia/Tokyo"));
+
+                ZonedDateTime utcDateTime = ZonedDateTime.of(2018, 1, 12, 4, 14,
+                                15, 167890123, ZoneId.of("UTC"));
+
+                assertEquals(jptDateTime, utcDateTime
+                                .withZoneSameInstant(ZoneId.of("Asia/Tokyo")));
+                assertEquals(jptDateTime.withZoneSameInstant(
+                                ZoneId.of("UTC")), utcDateTime);
 
         }
 
