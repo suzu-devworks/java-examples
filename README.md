@@ -1,1 +1,3 @@
-# java-examples
+# examples-java
+
+Workspace for studying java programming.
