@@ -5,7 +5,7 @@
 		"docker-compose.db.yml"
 	],
 	"service" : "dev",
-	"workspaceFolder": "/workspace",
+	"workspaceFolder": "/workspaces/examples-java",
 	"shutdownAction": "stopCompose",
 	
 	"settings": { 
