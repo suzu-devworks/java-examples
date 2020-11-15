@@ -17,13 +17,11 @@ services:
         "INSTALL_NODE": "false"
         "NODE_VERSION": "lts/*"
         # For Linux, Change the permission by specifying UID / GID.
-        "USER_UID": "9024"
-        "USER_GID": "2000"
+        "USER_UID": ${VSCODE_UID:-1000}
+        "USER_GID": ${VSCODE_GID:-1000}
     tty: true
     volumes: 
-      - $HOME/.gitconfig:/home/vscode/.gitconfig
-      - $HOME/.ssh:/home/vscode/.ssh
       #- ./docker/dev/.m2:/home/vscode/.m2
       #- ./docker/dev/.gradle:/home/vscode/.gradle
-      - ..:/workspace
-    working_dir: /workspace
+      - ..:/workspaces/examples-java
+    working_dir: /workspaces/examples-java
